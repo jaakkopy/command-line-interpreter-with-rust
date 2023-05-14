@@ -4,8 +4,10 @@ mod input;
 mod history;
 mod builtin_commands;
 mod input_state_handler;
+mod dirextory_prefix_tree;
 use std::os::fd::RawFd;
 use crate::input::Input;
+use builtin_commands::BUILTINS;
 use termios::*;
 
 static STDIN_FILENO: RawFd  = 0;
@@ -28,10 +30,12 @@ fn main_loop() {
     let mut inp = Input::make();
     loop {
         if let Ok(input_str) = inp.read_input() {
-            if let Ok(should_stop) = builtin_commands::check_builtin(&input_str) {
-                if should_stop {
-                    break;
-                }
+            if let Ok(builtin) = builtin_commands::check_builtin(&input_str) {
+                match builtin {
+                    BUILTINS::CD => {inp.update_prefix_tree()},
+                    BUILTINS::EXIT => break,
+                    _ => ()
+                } 
             }
             
             command_execution::execute_commands(

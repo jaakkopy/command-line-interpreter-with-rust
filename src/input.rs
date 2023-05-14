@@ -1,5 +1,5 @@
 use std::io::{self, Read, Write, stdout};
-
+use crate::dirextory_prefix_tree::*;
 pub use crate::history::*;
 pub use crate::input_state_handler::*;
 
@@ -9,7 +9,8 @@ pub struct Input {
     input_buf_index: usize,
     buf_len: usize,
     input_state: InputStateHandler, 
-    history: InputHistory
+    history: InputHistory,
+    prefix_tree: DirPrefixTree
 }
 
 impl Input {
@@ -19,7 +20,8 @@ impl Input {
             input_buf_index: 0,
             buf_len: 0,
             input_state: InputStateHandler::make(),
-            history: InputHistory::make(50)
+            history: InputHistory::make(50),
+            prefix_tree: DirPrefixTree::make()
         }
     }
 
@@ -109,7 +111,22 @@ impl Input {
         self.history.store(buf);
     }
 
+    // autocomplete the input string to match the longest common beginning character sequences found in the working directory
+    fn autocomplete_input_buf(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
+
+    pub fn update_prefix_tree(&mut self) {
+        self.prefix_tree.update_to_current_dir(); 
+    }
+
     pub fn handle_char(&mut self, c: char) -> std::io::Result<()> {
+        if c == '\t' {
+
+            return Ok(());
+        }        
+
+
         self.input_state.advance_state(c);
         match &self.input_state.current_state() {
             InputState::ANY => self.add_to_buf(c)?,
