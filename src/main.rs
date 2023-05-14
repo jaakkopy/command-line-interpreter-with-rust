@@ -32,7 +32,7 @@ fn main_loop() -> std::io::Result<()> {
         if let Ok(input_str) = inp.read_input() {
             if let Ok(builtin) = builtin_commands::check_builtin(&input_str) {
                 match builtin {
-                    BUILTINS::CD => {inp.update_prefix_tree()?},
+                    BUILTINS::CD => {inp.update_prefix_tree()?; continue;},
                     BUILTINS::EXIT => break,
                     _ => ()
                 } 

@@ -85,7 +85,9 @@ impl DirPrefixTree {
         buf
     }
 
+    // clear the old tree and add new entries from the current working directory.
     pub fn update_to_current_dir(&mut self) -> std::io::Result<()> {
+        self.root = TreeNode::make();
         let paths = fs::read_dir("./")?; 
 
         for p in paths {
