@@ -18,7 +18,7 @@ fn split_by_whitespace(input: &str) -> Vec<&str> {
     input.split_ascii_whitespace().collect()
 }
 
-// Check if the given input string is a built in command. Return true if the interpreter loop should be broken.
+// Check if the given input string is a built in command. Return information about the type of command via the enum.
 pub fn check_builtin(input: &str) -> io::Result<BUILTINS> {
     if input.eq("exit") {
         return Ok(BUILTINS::EXIT);

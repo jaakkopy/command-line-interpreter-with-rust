@@ -14,15 +14,15 @@ pub struct Input {
 }
 
 impl Input {
-    pub fn make() -> Input {
-        Input {
+    pub fn make() -> std::io::Result<Input> {
+        Ok(Input {
             input_buf: String::new(),
             input_buf_index: 0,
             buf_len: 0,
             input_state: InputStateHandler::make(),
             history: InputHistory::make(50),
-            prefix_tree: DirPrefixTree::make()
-        }
+            prefix_tree: DirPrefixTree::make()?
+        })
     }
 
     // clear the row by writing the input buffer's length's worth of backspaces
@@ -98,6 +98,9 @@ impl Input {
     fn erase_chars(&mut self, amount: usize) -> std::io::Result<()> {
         let amnt = std::cmp::min(amount, self.input_buf.len());        
         for _ in 0..amnt {
+            if self.input_buf_index == 0 {
+                break;
+            }
             print!("{} {}", '\u{8}', '\u{8}'); 
             self.input_buf.pop();
             self.buf_len -= 1;
@@ -111,22 +114,33 @@ impl Input {
         self.history.store(buf);
     }
 
-    // autocomplete the input string to match the longest common beginning character sequences found in the working directory
+    // autocomplete the input string's last part (separated by whitepsace) to match the longest common beginning character sequences found in the working directory
     fn autocomplete_input_buf(&mut self) -> std::io::Result<()> {
+        // find the parts
+        let mut parts: Vec<&str> = self.input_buf.split_ascii_whitespace().collect();
+        // observe the last part
+        if let Some(last_part) = parts.last() {
+            // match the last part against file names found in this directory
+            let longest_match = self.prefix_tree.find_longest_match(&last_part);
+            let last_pos = parts.len() - 1;
+            // replace the last part
+            parts[last_pos] = &longest_match;
+            let replacement = parts.join(" ");
+            self.replace_buf(replacement)?;
+        }
+        
         Ok(())
     }
 
-    pub fn update_prefix_tree(&mut self) {
-        self.prefix_tree.update_to_current_dir(); 
+    pub fn update_prefix_tree(&mut self) -> std::io::Result<()> {
+        self.prefix_tree.update_to_current_dir()
     }
 
     pub fn handle_char(&mut self, c: char) -> std::io::Result<()> {
         if c == '\t' {
-
+            self.autocomplete_input_buf()?;
             return Ok(());
         }        
-
-
         self.input_state.advance_state(c);
         match &self.input_state.current_state() {
             InputState::ANY => self.add_to_buf(c)?,

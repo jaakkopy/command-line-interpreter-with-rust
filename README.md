@@ -9,3 +9,4 @@ Currently supports:
 - stdin and stdout redirections with '<' and '>'
 - erasing the previous character with backspace
 - changing the current working directory with `cd`
+- autocomplete for the last part of the input with tab, '\t'

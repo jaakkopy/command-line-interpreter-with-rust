@@ -26,13 +26,13 @@ pub fn split_by_whitespace(input_buf: &str) -> Vec<&str> {
     input_buf.split_whitespace().collect()
 }
 
-fn main_loop() {
-    let mut inp = Input::make();
+fn main_loop() -> std::io::Result<()> {
+    let mut inp = Input::make()?;
     loop {
         if let Ok(input_str) = inp.read_input() {
             if let Ok(builtin) = builtin_commands::check_builtin(&input_str) {
                 match builtin {
-                    BUILTINS::CD => {inp.update_prefix_tree()},
+                    BUILTINS::CD => {inp.update_prefix_tree()?},
                     BUILTINS::EXIT => break,
                     _ => ()
                 } 
@@ -45,11 +45,14 @@ fn main_loop() {
             );
         }
     }
+    Ok(())
 }
 
 fn main() {
     if let Ok(old_terminal_settings) = set_termios_settings() {
-        main_loop(); 
+        if let Err(_) = main_loop() {
+            eprintln!("Failed to initialize");
+        }
         // Restore old terminal settings.
         match termios::tcsetattr(STDIN_FILENO, TCSANOW, &old_terminal_settings) {
             Ok(_) => (),
@@ -58,5 +61,4 @@ fn main() {
     } else {
         eprintln!("Couldn't set up terminal settings");
     }
-
 }
