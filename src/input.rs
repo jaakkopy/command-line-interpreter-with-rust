@@ -50,11 +50,13 @@ impl Input {
         Ok(())
     }
 
-    // Scroll down the history storage and restore the found the text as the current text  
+    // Scroll down the history storage and restore the found the text as the current text. If the position is already the earliest, replace the input buffer with an empty one.
     fn arrow_down(&mut self) -> std::io::Result<()> {
         if let Some(from_history) = self.history.scroll_down() {
             let s = String::from(from_history);
             self.replace_buf(s)?;
+        } else {
+            self.replace_buf(String::new())?;
         }
         Ok(())
     }
