@@ -9,4 +9,4 @@ Currently supports:
 - stdin and stdout redirections with '<' and '>'
 - erasing the previous character with backspace
 - changing the current working directory with `cd`
-- autocomplete for the last part of the input with tab, '\t'
+- autocomplete with tab, '\t'. Currently only works for the last part of the input when the input is separated by whitespace. Achieved with a prefix tree
