@@ -2,6 +2,7 @@ mod commands;
 mod command_execution;
 mod input;
 mod history;
+mod builtin_commands;
 mod input_state_handler;
 use std::os::fd::RawFd;
 use crate::input::Input;
@@ -27,9 +28,12 @@ fn main_loop() {
     let mut inp = Input::make();
     loop {
         if let Ok(input_str) = inp.read_input() {
-            if input_str.eq("exit") {
-                break;
+            if let Ok(should_stop) = builtin_commands::check_builtin(&input_str) {
+                if should_stop {
+                    break;
+                }
             }
+            
             command_execution::execute_commands(
                 &mut commands::make_commands(
                     split_by_whitespace(&input_str)
