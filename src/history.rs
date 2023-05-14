@@ -24,11 +24,11 @@ impl InputHistory {
     }
 
     pub fn scroll_up(&mut self) -> Option<&String> {
-        if self.looking_at_index + 1 >= self.history.len() {
+        if self.looking_at_index >= self.history.len() {
             return None;
         } 
         self.looking_at_index += 1;
-        self.history.get(self.looking_at_index)
+        self.history.get(self.looking_at_index - 1)
     }
 
     pub fn scroll_down(&mut self) -> Option<&String> {

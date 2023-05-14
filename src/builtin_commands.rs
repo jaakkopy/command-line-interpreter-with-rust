@@ -3,7 +3,6 @@ use std::path::Path;
 use std::io;
 
 fn change_working_dir(path_str: &str) -> io::Result<()> {
-    dbg!({}, path_str);
     let path = Path::new(path_str);
     set_current_dir(path)?;
     Ok(())
